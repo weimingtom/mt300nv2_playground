@@ -1,0 +1,328 @@
+http://fedoraproject.org/wiki/Features/DebugPythonStacks
+
+Features/DebugPythonStacks
+
+< Features
+
+Contents [hide] 
+1 Debug Python stacks
+1.1 Summary
+1.2 Owner
+1.3 Current status
+1.4 Detailed Description
+1.4.1 Technical notes
+1.5 Benefit to Fedora
+1.6 Scope
+1.7 How To Test
+1.7.1 Verify optimized python stacks
+1.7.2 Verify debug python stacks
+1.7.3 Verify Py_REF_DEBUG
+1.7.4 Verify Py_TRACE_REFS
+1.7.5 Verify PYMALLOC_DEBUG
+1.7.6 Verify COUNT_ALLOCS
+1.7.7 Verify LLTRACE
+1.7.8 Verify CALL_PROFILE
+1.7.9 Verify WITH_TSC
+1.8 User Experience
+1.9 Dependencies
+1.10 Contingency Plan
+1.11 Documentation
+1.12 Release Notes
+1.13 Comments and Discussion
+Debug Python stacks
+Summary
+
+Fedora now ships debug versions of Python 2 and Python 3 in addition to the traditional optimized builds. This will be of use to advanced Python users, such as developers of extension modules.
+
+Owner
+
+Name: Dave Malcolm
+Email: <dmalcolm@redhat.com>
+Current status
+
+Targeted release: Fedora ?
+Last updated: 2010-08-03
+Percentage of completion: 20%
+
+Summary: python and python3 packages support this, but no debug stack has been built "on top". Usable for debugging if purely using "noarch" modules.
+
+Initial notes on this: DaveMalcolm/PythonIdeas
+
+See email
+
+See the upstream notes on what all the flags do
+
+Package	Latest build	Debug flags
+python	python-2.7-7.fc14	--with-py-debug (implies Py_DEBUG, which implies LLTRACE, Py_REF_DEBUG, Py_TRACE_REFS, and PYMALLOC_DEBUG), WITH_TSC, with COUNT_ALLOCS, with CALL_PROFILE; noise at stdout from COUNT_ALLOCS
+python3	python3-3.1.2-7.fc14	--with-py-debug (implies Py_DEBUG, which implies LLTRACE, Py_REF_DEBUG, Py_TRACE_REFS, and PYMALLOC_DEBUG), WITH_TSC, with COUNT_ALLOCS, with CALL_PROFILE; noise at stdout from COUNT_ALLOCS
+Noise from COUNT_ALLOCS: Outputs counts to stdout on exit; this may be too much, making it impossible to write some scripted usage of the interpreter. Nice to have sys.getcounts(), so perhaps we should talk with upstream and instead emit counts to stderr instead, make this only happen if an envvar is set, or simply omit it?
+CodecInfo alloc'd: 1, freed: 0, max in use: 1
+exceptions.ImportError alloc'd: 2, freed: 2, max in use: 1
+_Helper alloc'd: 1, freed: 1, max in use: 1
+_Printer alloc'd: 3, freed: 3, max in use: 3
+(etc)
+Figure out sane RPM conventions for packaging debug builds of extension modules
+Package debug builds of important extension modules
+Consider turning down the gcc optimization level of the debug build from -O2 to something less.
+Detailed Description
+
+In previous releases we have configured our build of Python for the typical use-case: as much optimization as reasonable.
+
+However, upstream Python supports a number of useful debug options which use more RAM and CPU cycles, but make it easier to track down bugs [2]
+
+Typically these are of use to people working on Python C extensions, for example, for tracking down awkward reference-counting mistakes.
+
+In Fedora ___ we now supply python-debug and python3-debug packages containing debug builds of Python 2 and 3 with these settings turned on.
+
+It is intended for use by advanced Python users, and is installable on top of the normal (optimized) build. The builds share the same .py and .pyc files, but have their own compiled libraries and extension modules.
+
+Technical notes
+The Fedora ____ python.src.rpm now configures and builds, and installs the python sources twice, once with the regular optimized settings, and again with debug settings. (in most cases the files are identical between the two installs, and for the files that are different, they get separate paths)
+
+The builds are set up so that they can share the same .py and .pyc files - they have the same bytecode format.
+
+However, they are incompatible at the machine-code level: the extra debug-checking options change the layout of Python objects in memory, so the configurations have different shared library ABIs. A compiled C extension built for one will not work with the other.
+
+The key to keeping the different module ABIs separate is that module "foo.so" for the standard optimized build will instead be "foo_d.so i.e. gaining a "_d" suffix to the filename, and this is what the "import" routine will look for. This convention ultimately comes from the way the Windows build is set up in the upstream build process, via a similar patch that Debian apply.
+
+Similarly, the optimized libpython2.7.so.1.0 now has a libpython2.7_d.so.1.0 cousin for the debug build: all of the extension modules are linked against the appropriate libpython, and there's a /usr/include/python2.7-debug directory, parallel with the /usr/include/python2.7 directory. There's a new "sys.pydebug" boolean to distinguish the two configurations, and the distutils module uses this to supply the appropriate header paths ,and linker flags when building C extension modules.
+
+The debug build's python binary is /usr/bin/python2.7-debug, hardlinked as /usr/bin/python-debug (as opposed to /usr/bin/python2.7 and /usr/bin/python)
+
+Finally, we do all of the above for the python3.src.rpm as well.
+
+Benefit to Fedora
+
+By shipping pre-built debug Python 2 and 3 stacks we make it easier to write and debug Python extension modules on Fedora: we make it easier for developers to track down various kinds of bugs in their code.
+
+Scope
+
+Requires rebuild of "python" and "python3" rpms (already done).
+
+Beyond that, it's somewhat arbitrary in scope: any python- RPMs that contain arch-specific code are potential candidates for gaining a -debug subpackage. Will need to work with package maintainers. In some ways it's similar to the python3 split.
+
+My aim is to cover "high-value" python compiled extension modules
+
+coverage
+numpy
+pygtk2
+A more ambitious goal would be to do to this for all compiled extension modules.
+
+By comparison, Ubuntu does this for all "desktop" python modules: https://wiki.ubuntu.com/PyDbgBuilds
+
+(keep this this sorted alphabetically by python module name)
+
+Python Module	Fedora Python package	Status
+psycopg2	python-psycopg2	Awaiting review from packager: RHBZ #676748 (also adds python 3 support)
+How To Test
+
+Verify optimized python stacks
+Here's my own test plan for this:
+
+Smoketest of the interpreter
+Run the upstream regression test suite
+Ensure that yum still works
+Ensure that anaconda still works
+Verify that a python extension with some .c code can be rebuilt and works (python-coverage)
+Verify debug python stacks
+Here's my own test plan for python-debug:
+
+Smoketest of the interpreter
+Run the upstream regression test suite
+Verify that a python extension with some .c code can be rebuilt and works (python-coverage)
+Verify Py_REF_DEBUG
+Install python-debug and python3-debug
+
+$ python-debug -c "import sys; print(sys.gettotalrefcount())"
+28564
+[15039 refs]
+
+$ python3-debug -c "import sys; print(sys.gettotalrefcount())"
+28564
+[15039 refs]
+and ensure that each prints a number to stdout (and a refcount to stderr)
+
+Verify Py_TRACE_REFS
+Verify that python-debug can print all live objects:
+
+$ python-debug -c "import sys; print(sys.getobjects(0))" | less
+[<frame object at 0x1181eb0>, <code object <module> at 0x7f379227f970, file "<string>", line 1>, (-1, None, 0), 
+(snip)
+$ python3-debug -c "import sys; print(sys.getobjects(0))" | less
+[b'<string>', <frame object at 0xd78060>, <code object <module> at 0x7f84cc5ddbf0, file "<string>", line 1>, (0, None),
+(snip)
+In both cases there ought to be a large amount of debug information sent to stdout
+
+Verify that python-debug can print all live objects of a given type (e.g. "int"):
+
+$ python-debug -c "import sys; print(sys.getobjects(0, int))" |less
+[8000, 512, 2147483647, 590923713, 907133923, (snip)
+$ python3-debug -c "import sys; print(sys.getobjects(0, int))"
+[131180, 327681, 327680, 131119, 131121, 131120, 131118, 131116, (snip)
+Verify that setting the PYTHONDUMPREFS environment variable causes lots of info to be dumped to stderr on exit:
+
+$ PYTHONDUMPREFS=1 python-debug -c "pass"
+[15039 refs]
+Remaining objects:
+0x7fba34c1ac08 [1] 'last_traceback'
+0x7fba34c1aba0 [1] 'last_value'
+0x7fba34c1a860 [1] 'last_type'
+(etc)
+
+$ PYTHONDUMPREFS=1 python3-debug -c "pass"
+[35078 refs]
+Remaining objects:
+0x20c4148 [1] b'flush'
+0x1bf1640 [1] b'OverflowError'
+0x1c55860 [1] b'UnboundLocalError'
+(etc)
+
+Verify PYMALLOC_DEBUG
+Verify the PYTHONMALLOCSTATS environment variable.
+
+Ensure that running with the env var set causes debugging information to be logged to stderr at exit:
+
+$ PYTHONMALLOCSTATS=1 python-debug -c "pass"
+Small block threshold = 256, in 32 size classes.
+
+class   size   num pools   blocks in use  avail blocks
+-----   ----   ---------   -------------  ------------
+    4     40           1               1           100
+    6     56           1               1            71
+    7     64           1              30            33
+    9     80           1               1            49
+   10     88           1               2            44
+   11     96          29             560           658
+   12    104          21             394           404
+   13    112          21             418           338
+   14    120          45            1032           453
+   15    128          37             943           204
+   16    136          10             182           108
+   17    144           5              82            58
+   18    152           3              37            41
+   19    160           3              21            54
+   20    168          26             313           311
+   21    176           2              14            32
+   22    184           1               5            17
+   23    192           2               5            37
+   24    200           2               4            36
+   25    208           1               6            13
+   26    216           1               1            17
+   27    224           1               2            16
+   28    232           2               6            28
+   29    240           1               2            14
+   30    248           1               2            14
+   31    256           1               1            14
+
+# times object malloc called       =               58,737
+# arenas allocated total           =                    5
+# arenas reclaimed                 =                    0
+# arenas highwater mark            =                    5
+# arenas allocated current         =                    5
+5 arenas * 262144 bytes/arena      =            1,310,720
+
+# bytes in allocated blocks        =              496,176
+# bytes in available blocks        =              381,488
+95 unused pools * 4096 bytes       =              389,120
+# bytes lost to pool headers       =               10,560
+# bytes lost to quantization       =               12,896
+# bytes lost to arena alignment    =               20,480
+Total                              =            1,310,720
+
+$ PYTHONMALLOCSTATS=1 python3-debug -c "pass"
+FIXME: can we verify the buffer overrun code?
+
+Verify COUNT_ALLOCS
+$ python-debug -c "import sys; from pprint import pprint ; pprint(sys.getcounts())"
+[('CodecInfo', 1, 0, 1),
+ ('exceptions.ImportError', 2, 2, 1),
+ ('_Helper', 1, 0, 1),
+ ('_Printer', 3, 0, 3),
+(snip)
+$ python3-debug -c "import sys; from pprint import pprint ; pprint(sys.getcounts())"
+In both cases, a list of 4-tuples, one per type, should be printed to stdout:
+
+the name of the type
+the number of times an object of this type was allocated
+the number of times an object of this type was deallocated
+the highwater mark: the largest number of objects of this type alive at the same time during the lifetime of the process
+Verify LLTRACE
+python-debug -c "__lltrace__ = True ; import site"
+
+python3-debug -c "__lltrace__ = True ; import site"
+If __lltrace__ is defined within a Python frame, huge amounts of debug information should get dumped to stdout about what the bytecode interpreter is doing.
+
+Verify CALL_PROFILE
+$ python-debug -c "import sys; print(sys.callstats())"
+(snip)
+$ python3-debug -c "import sys; print(sys.callstats()"
+(snip)
+In both cases there ought to be a tuple of 11 integers sent to stdout (rather than "None")
+
+Verify WITH_TSC
+$ python-debug -c "import sys ; sys.settscdump(True) ; print(42)"
+
+$ python3-debug -c "import sys ; sys.settscdump(True) ; print(42)"
+opcode=131 t=0 inst=001725 loop=001923
+opcode=101 t=0 inst=001513 loop=001979
+42
+opcode=131 t=0 inst=001371 loop=001715
+Setting sys.settscdump(True) will make Python emit detailed timings about its bytecode interpreter to stderr, using the CPU's time-stamp counter.
+
+Specifically, stderr will contain a line about each bytecode executed, of the form:
+
+  opcode=XXX t=X inst=XXXXXX loop=XXXXXX
+where:
+
+opcode gives the numeric opcode being executed (see the list opcode.opname in the opcode module)
+t : did the periodic ticker fire? (e.g. for switching threads; normally every 1000 bytecodes; changable with sys.setcheckinterval)
+inst : time taken within switch statement, not including "interruptions" where work is being done by a Python function
+loop : time taken between the top and bottom of the main bytecode dispatch loop, again not including "interruptions"
+User Experience
+
+Fedora ____ now has a python-debug package containing debug versions of all of the content of the regular subpackages emitted by the python build (as opposed to the python-debuginfo package, which contains data for use by gdb (and thus is of use by the optimized stack).
+
+The optimized build should be unaffected by the presence (or availability) of the debug build: all of the paths and the ELF metadata for the standard build should be unchanged compared to how they were before adding the debug configuration.
+
+Installing the debug package gives you a /usr/bin/python-debug, analogous to the regular /usr/bin/python
+
+The interactive mode of this version tells you the total reference count of all live Python objects after each command:
+
+[david@fedora14 devel]$ python-debug
+Python 2.7 (r27:82500, Jul 28 2010, 18:07:22) 
+[GCC 4.5.0 20100716 (Red Hat 4.5.0-3)] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+>>> print "hello world"
+hello world
+[28748 refs]
+>>> 
+[28748 refs]
+[15041 refs]
+The debug build shares most of the files with the regular build (.py/.pyc/.pyo files; directories; support data; documentation); the only differences are the ELF files (binaries/shared libraries), and infrastructure relating to configuration (Include files, Makefile, python-config => python-debug-config, etc) that are different.
+
+Dependencies
+
+None
+
+Contingency Plan
+
+If there are major unfixable problems, we can disable the debug build in the python src.rpm and any other src.rpms that use it. The extent of this would depend on how many packages we had built with -debug subpackages. All such packages should have a with_debug_build macro, to give us an easy "off" switch for this eventuality.
+
+Having said that, I've been testing with this feature with local builds and it works.
+
+Documentation
+
+See the upstream notes on what all the flags do
+Release Notes
+
+Fedora now ships debug versions of Python 2 and Python 3 in addition to the traditional optimized builds. This will be of use to advanced Python users, such as developers of extension modules.
+
+The debug versions are in the python-debug and python3-debug packages, and can be invoked using python-debug (for Python 2) and python3-debug (for Python 3).
+
+Details on how to use these packages can be seen at Features/DebugPythonStacks
+
+FIXME: Obviously this can be updated based on exactly how many src.rpms we build out with -debug subpackages.
+
+Comments and Discussion
+
+See Talk:Features/DebugPythonStacks

@@ -1,0 +1,181 @@
+(1)
+
+	Handlers[0].tripped = 0;
+----begin
+	for (i = 1; i < NSIG; i++) 
+	{
+		void (*t)(int);
+		t = PyOS_getsig(i);
+		Handlers[i].tripped = 0;
+		if (t == SIG_DFL)
+		{
+			Handlers[i].func = DefaultHandler;
+		}
+		else if (t == SIG_IGN)
+		{
+			Handlers[i].func = IgnoreHandler;
+		}
+		else
+		{
+			Handlers[i].func = Py_None;
+		}
+		Py_INCREF(Handlers[i].func);
+	}
+----end
+	if (Handlers[SIGINT].func == DefaultHandler) 
+	{
+		Py_INCREF(IntHandler);
+		Py_DECREF(Handlers[SIGINT].func);
+		Handlers[SIGINT].func = IntHandler;
+		old_siginthandler = PyOS_setsig(SIGINT, signal_handler);
+	}
+
+
+----------------------------------------------------------
+(2)
+
+
+PyObject *PyUnicode_DecodeMBCS(const char *s,
+				int size,
+				const char *errors)
+{
+    PyUnicodeObject *v;
+    Py_UNICODE *p;
+
+    DWORD usize = MultiByteToWideChar(CP_ACP, 0, s, size, NULL, 0);
+    if (size > 0 && usize==0)
+    {
+		return PyErr_SetFromWindowsErrWithFilename(0, NULL);
+	}
+
+    v = _PyUnicode_New(usize);
+    if (v == NULL)
+    {
+		return NULL;
+    }
+	if (usize == 0)
+	{
+		return (PyObject *)v;
+    }
+	p = PyUnicode_AS_UNICODE(v);
+    if (0 == MultiByteToWideChar(CP_ACP, 0, s, size, p, usize)) 
+	{
+        Py_DECREF(v);
+        return PyErr_SetFromWindowsErrWithFilename(0, NULL);
+    }
+
+    return (PyObject *)v;
+}
+
+PyObject *PyUnicode_EncodeMBCS(const Py_UNICODE *p,
+				int size,
+				const char *errors)
+{
+    PyObject *repr;
+    char *s;
+    DWORD mbcssize;
+
+    if (size==0)
+	{
+		return PyString_FromString("");
+	}
+
+    mbcssize = WideCharToMultiByte(CP_ACP, 0, p, size, NULL, 0, NULL, NULL);
+    if (mbcssize==0)
+    {
+		return PyErr_SetFromWindowsErrWithFilename(0, NULL);
+	}
+
+    repr = PyString_FromStringAndSize(NULL, mbcssize);
+    if (repr == NULL)
+    {
+		return NULL;
+    }
+	if (mbcssize == 0)
+    {
+		return repr;
+	}
+
+    s = PyString_AS_STRING(repr);
+    if (0 == WideCharToMultiByte(CP_ACP, 0, p, size, s, mbcssize, NULL, NULL)) 
+	{
+        Py_DECREF(repr);
+        return PyErr_SetFromWindowsErrWithFilename(0, NULL);
+    }
+    return repr;
+}
+
+----------------------------------------------------------
+(3)
+
+			int len = FormatMessage(
+				FORMAT_MESSAGE_ALLOCATE_BUFFER |
+				FORMAT_MESSAGE_FROM_SYSTEM |
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				i,
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+				(LPTSTR) &s_buf,
+				0,
+				NULL);
+			s = s_buf;
+			while (len > 0 && (s[len-1] <= ' ' || s[len-1] == '.'))
+			{
+				s[--len] = '\0';
+			}
+			
+			
+	int len;
+	char *s;
+	PyObject *v;
+	DWORD err = (DWORD)ierr;
+	if (err == 0) 
+	{
+		err = GetLastError();
+	}
+	len = FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		err,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR) &s,
+		0,
+		NULL);
+	while (len > 0 && (s[len-1] <= ' ' || s[len-1] == '.'))
+	{
+		s[--len] = '\0';
+	}
+	
+	
+----------------------------------------------------------
+(4)
+
+#include <windows.h>
+
+static int case_ok(char *buf, int len, int namelen, char *name)
+{
+	WIN32_FIND_DATA data;
+	HANDLE h;
+
+	if (Py_GETENV("PYTHONCASEOK") != NULL)
+	{
+		return 1;
+	}
+
+	h = FindFirstFile(buf, &data);
+	if (h == INVALID_HANDLE_VALUE) 
+	{
+		PyErr_Format(PyExc_NameError,
+		  "Can't find file for module %.100s\n(filename %.300s)",
+		  name, buf);
+		return 0;
+	}
+	FindClose(h);
+	return strncmp(data.cFileName, name, namelen) == 0;
+}
+
+
+----------------------------------------------------------
+(5)

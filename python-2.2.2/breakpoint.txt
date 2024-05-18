@@ -1,0 +1,9 @@
+print(1+1)
+python/ceval.c:
+
+		case BINARY_ADD:
+			w = POP();
+			v = POP();
+			if (PyInt_CheckExact(v) && PyInt_CheckExact(w)) {
+
+-------------------------

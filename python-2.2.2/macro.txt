@@ -1,0 +1,594 @@
+object.h(TODO)
+objimpl.h(TODO)
+pymem.h(TODO)
+pyport.h(TODO)
+unicodeobject.h(TODO)
+
+remove #undef
+
+#define __attribute__(__x)
+#define DL_IMPORT(RTYPE) RTYPE
+#define DL_EXPORT(RTYPE) RTYPE
+
+------------
+(*) cStringIO.h
+
+------------
+weakrefobject.h(done)
+_sre.c(done)<------------------
+errnomodule.c
+getbuildinfo.c
+getpath.c
+newmodule.c
+sre.h
+threadmodule.c
+--
+traceback.c(done)<---------------
+sysmodule.c
+pythonrun.c
+marshal.c
+graminit.c(done)<---------------
+getplatform.c
+getcompiler.c
+getargs.c
+errors.c
+compile.c
+ceval.c(done)
+weakrefobject.c(done) <----------
+unicodeobject.c(todo)
+typeobject.c(todo)
+structseq.c(todo)
+object.c
+moduleobject.c
+fileobject.c(not done(x) done(y))
+abstract.c
+myreadline.c
+-----------------------------
+todo:
+remove register 
+remove #define
+remove #   error
+remove not needed header file
+
+# define->#define
+remove not used .h files
+-----------------------------
+keep:
+
+(x)#ifdef Py_DEBUG
+(x)#ifdef EINTR
+(x)#ifdef LLTRACE
+(x)#ifdef CHECKEXC
+(x)#define Py_TRACE_REFS
+(x)#define Py_REF_DEBUG
+
+(x)#define LLTRACE  1
+(x)#define CHECKEXC 1
+
+#ifdef _DEBUG
+
+(x)#if defined(VERBOSE)
+
+-----------------------------
+removed:
+
+#if defined ANDROID
+#ifdef ANDROID
+#ifdef applec
+#ifdef MPW_881_BUG
+#ifdef RISCOS   
+--->?Py_RISCOSWimpFlag
+--->#ifndef RISCOS
+--->#elif defined(RISCOS)
+--->!defined(RISCOS)
+#ifdef MPW
+#ifdef __CHAR_UNSIGNED__
+#ifdef macintosh
+--->#ifndef macintosh
+--->#ifdef USE_GUSI
+--->#elif defined(macintosh)
+#ifdef USE_GUSI
+#ifndef WITHOUT_COMPLEX
+
+#ifdef Py_USING_UNICODE
+--->#ifndef Py_USING_UNICODE
+--->#if PY_VERSION_HEX >= 0x01060000
+#ifdef VA_LIST_IS_ARRAY
+#ifdef __va_copy
+register
+#ifdef DYNAMIC_EXECUTION_PROFILE
+#ifdef WITH_THREAD
+--->#ifndef WITH_THREAD
+#ifndef DONT_HAVE_ERRNO_H
+#ifdef DXPAIRS
+#ifdef USE_STACKCHECK
+--->#if !defined(USE_STACKCHECK)
+#if !defined(HAVE_SIGNAL_H)
+#ifdef CASE_TOO_BIG
+
+
+#if Py_single_input != single_input
+  #error "single_input has changed -- update Py_single_input in python.h"
+#endif
+#if Py_file_input != file_input
+  #error "file_input has changed -- update Py_file_input in python.h"
+#endif
+#if Py_eval_input != eval_input
+  #error "eval_input has changed -- update Py_eval_input in python.h"
+#endif
+
+#ifdef CACHE_HASH
+--->#ifdef INTERN_STRINGS
+#ifdef COUNT_ALLOCS
+#ifndef WITH_CYCLE_GC
+#ifdef SHOW_CONVERSION_COUNTS
+
+#ifndef DONT_HAVE_SYS_TYPES_H
+#ifdef MS_WIN32
+--->MS_WIN64
+
+#ifdef __MWERKS__
+#ifdef HAVE_FOPENRF
+#ifdef NO_FOPEN_ERRNO
+#ifdef _MSC_VER
+#ifdef HAVE_SETVBUF
+
+#if !defined(HAVE_LARGEFILE_SUPPORT)
+#if SIZEOF_OFF_T >= 8
+typedef off_t Py_off_t;
+#elif SIZEOF_FPOS_T >= 8
+typedef fpos_t Py_off_t;
+#else
+#error "Large file support, but neither off_t nor fpos_t is large enough."
+#endif
+
+#if !defined(HAVE_LARGEFILE_SUPPORT)
+	return fseek(fp, offset, whence);
+#elif defined(HAVE_FSEEKO) && SIZEOF_OFF_T >= 8
+	return fseeko(fp, offset, whence);
+#elif defined(HAVE_FSEEK64)
+	return fseek64(fp, offset, whence);
+#elif defined(__BEOS__)
+	return _fseek(fp, offset, whence);
+#elif SIZEOF_FPOS_T >= 8
+
+
+#ifdef MS_WINDOWS
+--->#if !defined(__QNX__)
+--->#ifndef __STDC__
+--->#ifndef MS_WINDOWS
+--->#ifdef HAVE_SETVBUF
+------>#ifndef MPW
+#if !defined(HAVE_LARGEFILE_SUPPORT)
+#ifdef HAVE_FTRUNCATE
+#if BUFSIZ < 8192
+#if SIZEOF_INT < 4
+#ifdef HAVE_FSTAT
+
+#if !defined(USE_FGETS_IN_GETLINE) && !defined(HAVE_GETC_UNLOCKED)
+#if defined(DONT_USE_FGETS_IN_GETLINE) && defined(USE_FGETS_IN_GETLINE)
+#ifdef HAVE_GETC_UNLOCKED
+#ifdef USE_FGETS_IN_GETLINE
+#ifdef HAVE_FTRUNCATE
+
+#if defined(sun) && !defined(__SVR4)
+-->#if defined(sun) && !defined(SOLARIS_THREADS)
+-->#ifdef SOLARIS_THREADS
+-->#ifdef HAVE_THREAD_H
+
+#ifndef NSMALLPOSINTS
+#ifndef NSMALLNEGINTS
+#if NSMALLNEGINTS + NSMALLPOSINTS > 0
+#if LONG_MAX != INT_MAX
+
+#ifdef STDC_HEADERS
+#if SIZEOF_VOID_P <= SIZEOF_LONG
+#ifdef HAVE_LONG_LONG
+--->#elif defined(HAVE_LONG_LONG) && (SIZEOF_VOID_P <= SIZEOF_LONG_LONG)
+
+#if SIZEOF_LONG >= SIZEOF_VOID_P
+#ifdef SLOW_UNREF_CHECK
+#if _PyMem_EXTRA > 0
+#ifdef WITH_PYMALLOC
+
+#ifndef DONT_SHARE_SHORT_STRINGS
+#if !defined(HAVE_LIMITS_H) && !defined(UCHAR_MAX)
+#ifdef HAVE_STDARG_PROTOTYPES
+
+#ifndef MAXSAVESIZE
+#ifndef MAXSAVEDTUPLES 
+#if MAXSAVESIZE > 0
+
+#ifdef Py_UNICODE_WIDE
+#ifndef WANT_WCTYPE_FUNCTIONS
+--->#ifndef Py_UNICODE_WIDE
+--->#if Py_UNICODE_SIZE >= 4
+------>#if defined(HAVE_USABLE_WCHAR_T) && defined(WANT_WCTYPE_FUNCTIONS)
+------>#ifndef PY_UNICODE_TYPE
+------>#ifndef Py_UNICODE_SIZE
+
+#ifdef WORDS_BIGENDIAN
+#ifdef HAVE_WCHAR_H
+#ifdef HAVE_USABLE_WCHAR_T
+#ifdef BYTEORDER_IS_LITTLE_ENDIAN
+#if defined(HAVE_USABLE_WCHAR_T)
+
+
+#if defined(HAVE_USABLE_WCHAR_T)
+#if defined(PYOS_OS2) && defined(PYCC_VACPP)
+--->#if defined(PYOS_OS2)
+--->#if defined(PYCC_VACPP)
+
+#ifdef MS_WIN16
+--->#ifndef MS_WIN16
+
+#ifdef EINTR
+
+#ifndef COMPILER
+#ifdef __GNUC__
+#ifdef __cplusplus
+
+#ifndef PLATFORM
+
+#ifdef HAVE_FCNTL_H
+#if defined(O_EXCL)&&defined(O_CREAT)&&defined(O_WRONLY)&&defined(O_TRUNC)
+#ifdef O_BINARY
+#if SIZEOF_TIME_T > 4
+#ifdef MS_COREDLL
+#ifdef ALTSEP
+#ifdef HAVE_STAT
+--->#ifndef DONT_HAVE_STAT
+--->#ifndef DONT_HAVE_SYS_STAT_H
+#ifdef __CYGWIN__
+#ifdef HAVE_DYNAMIC_LOADING
+
+#ifdef __cplusplus
+#if SIZEOF_LONG > 4
+#ifdef HAVE_FSTAT
+
+#ifndef HAVE_SNPRINTF
+--->#ifdef HAVE_SNPRINTF
+
+#if defined(__sgi) && !defined(_SGI_MP_SOURCE)
+-->#if defined(__sgi) && !defined(_SGI_MP_SOURCE)
+#ifdef WANT_SIGFPE_HANDLER
+
+#ifdef HAVE_DLOPEN
+
+#ifdef HAVE_SIGNAL_H
+#ifdef SIGPIPE
+#ifdef SIGXFZ
+#if defined(WIN32) && defined(_MSC_VER)
+--->#if defined(_MSC_VER)
+--->#if defined(WIN32) && defined(_MSC_VER)
+--->#if defined(_DEBUG) && USE_VC6_MEMORY_LEAK
+--->__INSURE__
+--->#ifdef __INSURE__
+#ifdef HAVE_SIGACTION
+
+#ifdef USE_MALLOPT
+#if PY_RELEASE_LEVEL == PY_RELEASE_LEVEL_ALPHA
+	s = "alpha";
+#elif PY_RELEASE_LEVEL == PY_RELEASE_LEVEL_BETA
+	s = "beta";
+#elif PY_RELEASE_LEVEL == PY_RELEASE_LEVEL_GAMMA
+	s = "candidate";
+#elif PY_RELEASE_LEVEL == PY_RELEASE_LEVEL_FINAL
+	s = "final";
+#endif
+#ifdef HAVE_READLINK
+#if SEP == '\\'
+#if SEP == '/'
+
+#ifndef DL_IMPORT
+#ifndef DONT_HAVE_STDIO_H
+#ifdef HAVE_STDLIB_H
+#ifdef __DGUX
+#ifdef __ksr__
+#ifndef _POSIX_THREADS
+#if defined(__MWERKS__) && !defined(__BEOS__)
+#ifdef SGI_THREADS
+#ifdef SUN_LWP
+#ifdef HAVE_PTH
+#ifdef _POSIX_THREADS
+#ifdef C_THREADS
+#ifdef NT_THREADS
+#ifdef OS2_THREADS
+#ifdef BEOS_THREADS
+#ifdef WINCE_THREADS
+
+#ifdef InterlockedCompareExchange
+#ifndef NO_EXIT_PROG
+
+
+#ifndef NO_EXIT_PROG
+
+#ifndef SIG_ERR
+#ifndef NSIG
+#ifdef WITH_PTH
+#ifdef SIGCHLD
+#ifdef HAVE_SIGINTERRUPT
+#ifdef HAVE_ALARM
+#ifdef HAVE_PAUSE
+#ifdef HAVE_SIGINTERRUPT
+
+
+#ifdef SIGHUP
+	fasdf
+	x = PyInt_FromLong(SIGHUP);
+	PyDict_SetItemString(d, "SIGHUP", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGINT
+	fasdf
+	x = PyInt_FromLong(SIGINT);
+	PyDict_SetItemString(d, "SIGINT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGBREAK
+	afsdf
+	x = PyInt_FromLong(SIGBREAK);
+	PyDict_SetItemString(d, "SIGBREAK", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGQUIT
+	x = PyInt_FromLong(SIGQUIT);
+	PyDict_SetItemString(d, "SIGQUIT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGILL
+	x = PyInt_FromLong(SIGILL);
+	PyDict_SetItemString(d, "SIGILL", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGTRAP
+	x = PyInt_FromLong(SIGTRAP);
+	PyDict_SetItemString(d, "SIGTRAP", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGIOT
+	x = PyInt_FromLong(SIGIOT);
+	PyDict_SetItemString(d, "SIGIOT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGABRT
+	x = PyInt_FromLong(SIGABRT);
+	PyDict_SetItemString(d, "SIGABRT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGEMT
+	x = PyInt_FromLong(SIGEMT);
+	PyDict_SetItemString(d, "SIGEMT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGFPE
+	x = PyInt_FromLong(SIGFPE);
+	PyDict_SetItemString(d, "SIGFPE", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGKILL
+	x = PyInt_FromLong(SIGKILL);
+	PyDict_SetItemString(d, "SIGKILL", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGBUS
+	x = PyInt_FromLong(SIGBUS);
+	PyDict_SetItemString(d, "SIGBUS", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGSEGV
+	x = PyInt_FromLong(SIGSEGV);
+	PyDict_SetItemString(d, "SIGSEGV", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGSYS
+	x = PyInt_FromLong(SIGSYS);
+	PyDict_SetItemString(d, "SIGSYS", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGALRM
+	x = PyInt_FromLong(SIGALRM);
+	PyDict_SetItemString(d, "SIGALRM", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGTERM
+	x = PyInt_FromLong(SIGTERM);
+	PyDict_SetItemString(d, "SIGTERM", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGUSR1
+	x = PyInt_FromLong(SIGUSR1);
+	PyDict_SetItemString(d, "SIGUSR1", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGUSR2
+	x = PyInt_FromLong(SIGUSR2);
+	PyDict_SetItemString(d, "SIGUSR2", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGCLD
+	x = PyInt_FromLong(SIGCLD);
+	PyDict_SetItemString(d, "SIGCLD", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGCHLD
+	x = PyInt_FromLong(SIGCHLD);
+	PyDict_SetItemString(d, "SIGCHLD", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGPWR
+	x = PyInt_FromLong(SIGPWR);
+	PyDict_SetItemString(d, "SIGPWR", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGIO
+	x = PyInt_FromLong(SIGIO);
+	PyDict_SetItemString(d, "SIGIO", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGURG
+	x = PyInt_FromLong(SIGURG);
+	PyDict_SetItemString(d, "SIGURG", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGWINCH
+	x = PyInt_FromLong(SIGWINCH);
+	PyDict_SetItemString(d, "SIGWINCH", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGPOLL
+	x = PyInt_FromLong(SIGPOLL);
+	PyDict_SetItemString(d, "SIGPOLL", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGSTOP
+	x = PyInt_FromLong(SIGSTOP);
+	PyDict_SetItemString(d, "SIGSTOP", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGTSTP
+	x = PyInt_FromLong(SIGTSTP);
+	PyDict_SetItemString(d, "SIGTSTP", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGCONT
+	x = PyInt_FromLong(SIGCONT);
+	PyDict_SetItemString(d, "SIGCONT", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGTTIN
+	x = PyInt_FromLong(SIGTTIN);
+	PyDict_SetItemString(d, "SIGTTIN", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGTTOU
+	x = PyInt_FromLong(SIGTTOU);
+	PyDict_SetItemString(d, "SIGTTOU", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGVTALRM
+	x = PyInt_FromLong(SIGVTALRM);
+	PyDict_SetItemString(d, "SIGVTALRM", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGPROF
+	x = PyInt_FromLong(SIGPROF);
+	PyDict_SetItemString(d, "SIGPROF", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGXCPU
+	x = PyInt_FromLong(SIGXCPU);
+	PyDict_SetItemString(d, "SIGXCPU", x);
+    Py_XDECREF(x);
+#endif
+#ifdef SIGXFSZ
+	x = PyInt_FromLong(SIGXFSZ);
+	PyDict_SetItemString(d, "SIGXFSZ", x);
+    Py_XDECREF(x);
+#endif
+
+#ifdef WITH_NEXT_FRAMEWORK
+#ifndef VERSION
+#ifndef VPATH
+#ifndef PREFIX
+#ifndef EXEC_PREFIX
+#ifndef PYTHONPATH
+#ifndef LANDMARK
+#ifdef WITH_NEXT_FRAMEWORK
+#if HAVE_READLINK
+
+#ifndef DATE
+#ifdef __DATE__
+#ifndef TIME
+#ifdef __TIME__
+#ifndef BUILD
+
+#if !defined(SRE_MODULE)
+#if PY_VERSION_HEX < 0x01060000
+#if defined(VERBOSE)
+#if defined(HAVE_UNICODE)
+#ifndef SRE_RECURSIVE
+#if defined(USE_RECURSION_LIMIT)
+#if defined(USE_FAST_SEARCH)
+#if PY_VERSION_HEX >= 0x01060000
+#ifdef USE_BUILTIN_COPY
+#if PY_VERSION_HEX >= 0x01060000
+#if PY_VERSION_HEX >= 0x02020000
+
+#ifdef USE_CACHE_ALIGNED
+#ifndef ULONG_MAX
+#ifndef LONGLONG_MAX
+#ifndef ULONGLONG_MAX
+#ifdef BAD_STATIC_FORWARD
+
+#ifndef PyCore_OBJECT_MALLOC_FUNC
+#ifndef PyCore_OBJECT_MALLOC_PROTO
+#ifdef NEED_TO_DECLARE_OBJECT_MALLOC_AND_FRIEND
+#ifndef PyCore_OBJECT_MALLOC
+#if ((SIZEOF_VOID_P - 1) & SIZEOF_VOID_P) != 0
+
+#ifndef SEP
+#ifndef MAXPATHLEN
+#ifndef DELIM
+
+#ifndef DL_IMPORT
+
+#ifdef HAVE_NCURSES_H
+
+#ifndef PyCore_MALLOC_FUNC
+#ifndef PyCore_MALLOC_PROTO
+#ifdef NEED_TO_DECLARE_MALLOC_AND_FRIEND
+#ifndef PyCore_MALLOC
+
+#ifdef HAVE_PROTOTYPES
+#ifndef LONG_LONG
+#ifdef HAVE_UINTPTR_T
+#ifdef HAVE_STDLIB_H
+#ifdef HAVE_SYS_SELECT_H
+#ifndef S_ISREG
+#ifndef S_ISDIR
+#ifdef SIGNED_RIGHT_SHIFT_ZERO_FILLS
+#ifdef INFINITY
+#ifdef SOLARIS
+#ifdef __BEOS__
+#ifdef HAVE__GETPTY
+#if defined(HAVE_OPENPTY) || defined(HAVE_FORKPTY)
+#if (!defined(__GNUC__) || __GNUC__ < 2 || \
+     (__GNUC__ == 2 && __GNUC_MINOR__ < 7) || \
+     defined(NEXT) )
+#ifdef __BORLANDC__
+#if LONG_BIT != 8 * SIZEOF_LONG
+#ifndef LONG_MIN
+#ifndef LONG_BIT
+#ifdef MALLOC_ZERO_RETURNS_NULL
+#ifndef HAVE_HYPOT
+#ifndef DL_IMPORT    
+
+#ifndef _GNU_SOURCE
+#ifndef DL_IMPORT
+#ifndef DL_EXPORT
+#ifndef NULL
+#ifdef HAVE_STDLIB_H
+#ifdef HAVE_UNISTD_H
+#ifdef HAVE_PTH
+
+#ifndef NO_EXIT_PROG
+#ifdef HAVE_STDDEF_H
+#ifndef offsetof
+
+# ifndef HAVE_WCHAR_H
+#ifdef HAVE_WCHAR_H
+# ifdef _HAVE_BSDI
+#if SIZEOF_INT >= 4 
+
+#ifndef USE_DL_EXPORT
+#if !defined(USE_DL_EXPORT) && defined(_MSC_VER)
+#if defined(__LCC__)
+#if defined(__GNUC__) && defined(_WIN32)
+#ifdef __BORLANDC__
+#ifdef USE_DL_IMPORT
+#ifdef USE_DL_EXPORT
+#ifndef MS_NO_COREDLL
+#ifndef NETSCAPE_PI
+#if Py_UNICODE_SIZE == 2
+
