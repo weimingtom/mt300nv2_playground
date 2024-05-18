@@ -11,3 +11,11 @@ My GL-MT300N-V2 playground
 ## python-2.2.2  
 * https://github.com/weimingtom/cecilia  
 * TODO: build failed on MSYS2 MINGW64  
+
+## lua-5.1.4  
+* https://lua.org/ftp/  
+
+## TODO  
+* ascii-invaders  
+* https://github.com/buildroot/buildroot/tree/master/package/ascii-invaders  
+* https://github.com/macdice/ascii-invaders  
