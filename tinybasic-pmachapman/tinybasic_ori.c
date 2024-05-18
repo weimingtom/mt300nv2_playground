@@ -13,15 +13,12 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define IS_DEBUG 0
-
 #define NUM_LAB 100
 #define LAB_LEN 10
 #define FOR_NEST 25
 #define SUB_NEST 25
 #define PROG_SIZE 10000
 
-//token_type
 #define DELIMITER  1
 #define VARIABLE  2
 #define NUMBER    3
@@ -29,7 +26,6 @@
 #define STRING	  5
 #define QUOTE	  6
 
-//tok, for token_type COMMAND
 #define PRINT 1
 #define INPUT 2
 #define IF    3
@@ -98,14 +94,9 @@ void print(), scan_labels(), find_eol(), exec_goto();
 void exec_if(), exec_for(), next(), fpush(), input();
 void gosub(), greturn(), gpush(), label_init();
 void serror(), get_exp(), putback();
-void level2(double *result, unsigned char token_type, unsigned char tok), 
-level3(double *result, unsigned char token_type, unsigned char tok), 
-level4(double *result, unsigned char token_type, unsigned char tok), 
-level5(double *result, unsigned char token_type, unsigned char tok), 
-level6(double *result, unsigned char token_type, unsigned char tok), 
-primitive(double *result, unsigned char token_type, unsigned char tok);
-void unary(char o, double *r), arith(char o, double *r, double *h);
-int load_program(char *p, const char *fname), look_up(char *s);
+void level2(), level3(), level4(), level5(), level6(), primitive();
+void unary(), arith();
+int load_program(char *p, char *fname), look_up(char *s);
 int get_next_label(char *s), iswhite(char c), isdelim(char c);
 double find_var(char *s);
 void get_token(char *token_type, char *tok);
@@ -113,13 +104,9 @@ void get_token(char *token_type, char *tok);
 int main(int argc, char *argv[])
 {
   char *p_buf;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
-
-//FIXME:  
-setbuf(stdout, 0);
-setbuf(stdin, 0);
-
+  char token_type = 0;
+  char tok = 0;
+  
   if(argc!=2) {
     printf("usage: tinybasic <filename>\n");
     exit(1);
@@ -142,7 +129,7 @@ setbuf(stdin, 0);
   ftos = 0; /* initialize the FOR stack index */
   gtos = 0; /* initialize the GOSUB stack index */
   do {
-    //printf("hello1\n");
+    
     get_token(&token_type, &tok);
     /* check for assignment statement */
     if(token_type == VARIABLE) {
@@ -150,7 +137,7 @@ setbuf(stdin, 0);
       assignment(); /* must be assignment statement */
     }
     else /* is command */
-      switch((int)tok) {
+      switch(tok) {
         case PRINT:
 	        print();
   	      break;
@@ -176,18 +163,14 @@ setbuf(stdin, 0);
           greturn();
           break;
         case END:
-          printf("end\n");
           exit(0);
       }
   } while (tok != FINISHED);
-  //printf("end...\n");
-  return 0;
 }
 
 /* Load a program. */
-int load_program(char *p, const char *fname)
+int load_program(char *p, char *fname)
 {
-  //printf("fname: %s\n", fname);
   FILE *fp;
   int i = 0;
 
@@ -195,25 +178,10 @@ int load_program(char *p, const char *fname)
 
   i = 0;
   do {
-    //*p = getc(fp);
-    char k = getc(fp);
-    //if (k == '\r') { //FIXME:
-    //	continue;
-    //}
-    if (k == EOF) { //'\x0ff'
-	continue;
-    }
-    *p = k;
-#if IS_DEBUG
-    printf("*p: %02X\n", (*p & 0xff));
-#endif
+    *p = getc(fp);
     p++; i++;
   } while(!feof(fp) && i<PROG_SIZE);
-  if (0) {
-    *(p-2) = '\0'; /* null terminate the program */
-  } else {
-    *(p+0) = '\0'; /* null terminate the program */
-  }
+  *(p-2) = '\0'; /* null terminate the program */
   fclose(fp);
   return 1;
 }
@@ -223,8 +191,8 @@ void assignment()
 {
   int var;
   double value;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
   
   /* get the variable name */
   get_token(&token_type, &tok);
@@ -246,34 +214,21 @@ void assignment()
   variables[var] = value;
 }
 
-static int print_t = 0;
 /* Execute a simple version of the BASIC PRINT statement */
 void print()
 {
   double answer;
   int len=0, spaces;
-  char last_delim = (char) 0;
-  unsigned char token_type = (unsigned char)0;
-  unsigned char tok = (unsigned char)0;
+  char last_delim;
+  char token_type = 0;
+  char tok = 0;
 
-#if IS_DEBUG
-  printf("\n[print_t: %d]\n", print_t);
-  print_t++;
-#endif
-
-  int kkk = 0;
   do {
     get_token(&token_type, &tok); /* get next list item */
-
-#if IS_DEBUG
-    printf("\n[print: %d, EOL: %d, kkk: %d]\n", tok, EOL, kkk);
-    kkk++;
-#endif
-
     if(tok==EOL || tok==FINISHED) break;
     if(token_type==QUOTE) { /* is string */
       printf("%s",token);
-      len += (int)strlen(token);
+      len += strlen(token);
       get_token(&token_type, &tok);
     }
     else { /* is expression */
@@ -299,27 +254,13 @@ void print()
     }
     else if(*token == ',') /* do nothing */;
     else if(tok != EOL && tok != FINISHED) serror(0);
-  //FIXME:
-  //} while (*token != '\r' || *token == ';' || *token == ',');
-  } while (*token == ';' || *token == ',');
+  } while (*token != '\r' || *token == ';' || *token == ',');
 
   if(tok==EOL || tok==FINISHED) {
     if(last_delim != ';' && last_delim != ',') printf("\n");
   }
   //else serror(0); /* error is not , or ; */
-  //FIXME:
-  else {
-    if (0) {
-	
-    } else {
-       serror(0); /* error is not , or ; */
-    }
-  }
 
-#if IS_DEBUG
-  printf("\n[print_t:out: %d]\n", print_t);
-  print_t++;
-#endif
 }
 
 /* Find all labels. */
@@ -327,8 +268,8 @@ void scan_labels()
 {
   int addr;
   char *temp;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
   
   label_init();  /* zero all labels */
   temp = prog;   /* save pointer to top of program */
@@ -389,31 +330,22 @@ int get_next_label(char *s)
    label is not found; otherwise a pointer to the position
    of the label is returned.
 */
-char *find_label(char *s)
-//char *s;
+char *find_label(s)
+char *s;
 {
   register int t;
-  static char empty[] = "";
 
-#if IS_DEBUG
-  printf("find_label <<< %s\n", s);
-#endif
-
-  for(t=0; t<NUM_LAB; ++t) {
-#if IS_DEBUG
-    printf("find_label >>> %s\n", label_table[t].name);
-#endif
+  for(t=0; t<NUM_LAB; ++t)
     if(!strcmp(label_table[t].name,s)) return label_table[t].p;
-  }
-  return empty; //return '\0'; /* error condition */ //FIXME: ""
+  return '\0'; /* error condition */
 }
 
 /* Execute a GOTO statement. */
 void exec_goto()
 {
   char *loc;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
 
   get_token(&token_type, &tok); /* get label to go to */
   /* find the location of the label */
@@ -441,8 +373,8 @@ void exec_if()
   double x, y;
   int cond;
   char op[3] = "";
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
 
   get_exp(&x); /* get left expression */
   get_token(&token_type, &tok); /* get the operator */
@@ -472,9 +404,7 @@ void exec_if()
       serror(8);
       return;
     }/* else program execution starts on next line */
-#if 0
     exec_goto(); //<-- added line!
-#endif
   }
   else {
     find_eol(); /* find start of next line */
@@ -486,8 +416,8 @@ void exec_for()
 {
   struct for_stack i;
   double value;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
 
   get_token(&token_type, &tok); /* read the control variable */
   if(!isalpha(*token)) {
@@ -535,8 +465,8 @@ void next()
 }
 
 /* Push function for the FOR stack. */
-void fpush(struct for_stack i)
-//struct for_stack i;
+void fpush(i)
+struct for_stack i;
 {
    if(ftos > FOR_NEST)
     serror(10);
@@ -557,8 +487,8 @@ void input()
 {
   char var;
   int i;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
 
   get_token(&token_type, &tok); /* see if prompt string is present */
   if(token_type==QUOTE) {
@@ -568,19 +498,19 @@ void input()
     get_token(&token_type, &tok);
   }
   else printf("? "); /* otherwise, prompt with / */
-  var = (char)(toupper(*token)-'A'); /* get the input var */
+  var = toupper(*token)-'A'; /* get the input var */
 
   scanf("%d", &i); /* read input */
 
-  variables[(int)var] = (int)i; /* store it */
+  variables[(int)var] = i; /* store it */
 }
 
 /* Execute a GOSUB command. */
 void gosub()
 {
   char *loc;
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
 
   get_token(&token_type, &tok);
   /* find the label to call */
@@ -600,8 +530,8 @@ void greturn()
 }
 
 /* GOSUB stack push function. */
-void gpush(char *s)
-//char *s;
+void gpush(s)
+char *s;
 {
   gtos++;
 
@@ -626,11 +556,11 @@ char *gpop()
 }
 
 /* Entry point into parser. */
-void get_exp(double *result)
-//double *result;
+void get_exp(result)
+double *result;
 {
-  unsigned char token_type = 0;
-  unsigned char tok = 0;
+  char token_type = 0;
+  char tok = 0;
   get_token(&token_type, &tok);
   if(!*token) {
     serror(2);
@@ -642,8 +572,8 @@ void get_exp(double *result)
 
 
 /* display an error message */
-void serror(int error)
-//int error;
+void serror(error)
+int error;
 {
   static char *e[]= {
     "syntax error",
@@ -675,17 +605,6 @@ void get_token(char *token_type, char *tok)
 
   //printf(",%s",token);
   
-#if 1
-  //FIXME: why???
-  *token_type = 0;
-  *tok = 0;
-#endif
-
-//FIXME:
-#if IS_DEBUG
-  printf("\n[get_token: %s]\n", token);
-#endif
-
   if(*prog=='\0') { /* end of file */
     *token=0;
     *tok = FINISHED;
@@ -699,7 +618,7 @@ void get_token(char *token_type, char *tok)
   if(*prog == '\r') { /* crlf */
     ++prog; ++prog;
     *tok = EOL; *token='\r';
-    token[1]='\n'; token[2]=(char)0;
+    token[1]='\n'; token[2]=0;
     *token_type = DELIMITER;
     return;
   } 
@@ -785,10 +704,6 @@ int look_up(char *s)
   register int i;
   char *p;
 
-#if IS_DEBUG
-  printf("[>>>>%s<<<<]", s);
-#endif
-
   /* convert to lowercase */
   p = s;
   while(*p){ *p = tolower(*p); p++; }
@@ -817,10 +732,10 @@ int iswhite(char c)
 
 
 /*  Add or subtract two terms. */
-void level2(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void level2(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
   register char op;
   double hold;
@@ -834,10 +749,10 @@ void level2(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Multiply or divide two factors. */
-void level3(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void level3(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
   register char  op;
   double hold;
@@ -851,10 +766,10 @@ void level3(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Process integer exponent. */
-void level4(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void level4(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
   double hold;
 
@@ -867,10 +782,10 @@ void level4(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Is a unary + or -. */
-void level5(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void level5(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
   register char op;
 
@@ -885,10 +800,10 @@ void level5(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Process parenthesized expression. */
-void level6(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void level6(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
   if((*token == '(') && (token_type == DELIMITER)) {
     get_token(&token_type, &tok);
@@ -902,10 +817,10 @@ void level6(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Find value of number or variable. */
-void primitive(double *result, unsigned char token_type, unsigned char tok)
-//double *result;
-//char token_type;
-//char tok;
+void primitive(result, token_type, tok)
+double *result;
+char token_type;
+char tok;
 {
 
   switch(token_type) {
@@ -923,9 +838,9 @@ void primitive(double *result, unsigned char token_type, unsigned char tok)
 }
 
 /* Perform the specified arithmetic. */
-void arith(char o, double *r, double *h)
-//char o;
-//double *r, *h;
+void arith(o, r, h)
+char o;
+double *r, *h;
 {
   register int t, ex;
 
@@ -943,24 +858,24 @@ void arith(char o, double *r, double *h)
       *r = *r / *h;
       break;
     case '%':
-      t = (*r) / (*h); //FIXME:(int)((r) / (h));
+      t = (*r) / (*h);
       *r = *r - (t*(*h));
       break;
     case '^':
-      ex = *r; //FIXME:(int)r;
+      ex = *r;
       if(*h == 0) {
         *r = 1;
         break;
       }
-      for(t = *h-1; t > 0; --t) *r = (*r) * ex; //FIXME:for (t = (int)(h - 1); t > 0; --t) r = (r) * ex;
+      for(t = *h-1; t > 0; --t) *r = (*r) * ex;
       break;
   }
 }
 
 /* Reverse the sign. */
-void unary(char o, double *r)
-//char o;
-//double *r;
+void unary(o, r)
+char o;
+double *r;
 {
   if(o=='-') *r = -(*r);
 }

@@ -1,4 +1,5 @@
 # PLAT := arm-linux-androideabi-
+PLAT := STAGING_DIR=/home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl /home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl/bin/mipsel-openwrt-linux-
 
 CC := $(PLAT)gcc 
 CPP := $(PLAT)g++
@@ -20,7 +21,7 @@ objects += lobject.o lopcodes.o lparser.o lstate.o lstring.o ltable.o ltm.o
 objects += lundump.o lvm.o lzio.o lauxlib.o lbaselib.o ldblib.o liolib.o lmathlib.o loslib.o ltablib.o
 objects += lstrlib.o loadlib.o linit.o
 
-TARGET := lua
+TARGET := lua514
 
 all : $(TARGET)
 
@@ -38,3 +39,12 @@ liblua.a : $(objects)
 
 clean :
 	$(RM) $(objects) *.a *.exe $(TARGET)
+
+scp:
+	scp ./$(TARGET) root@192.168.8.1:/dev/shm/
+
+#scp ./$(TARGET) root@192.168.8.1:/tmp
+
+ssh:
+	ssh root@192.168.8.1
+

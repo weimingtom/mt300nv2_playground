@@ -79,7 +79,7 @@ void PyFloat_Fini();
 void PyOS_FiniInterrupts();
 char * PyOS_Readline(char *);
 extern int (*PyOS_InputHook)();
-char *(*PyOS_ReadlineFunctionPointer)(char *);
+extern char *(*PyOS_ReadlineFunctionPointer)(char *);
 #define PYOS_STACK_MARGIN 2048
 #define USE_STACKCHECK
 int PyOS_CheckStack();
