@@ -68,7 +68,8 @@ all : $(TARGET)
 
 $(TARGET) : libpython.a
 	$(CC) $(CFLAGS) -o $@ modules/python.c libpython.a -lm
-	$(STRIP) $@
+	
+#$(STRIP) $@
 
 libpython.a : $(objects)
 	$(AR) $@ $(objects) 

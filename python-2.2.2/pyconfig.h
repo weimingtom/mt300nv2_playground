@@ -27,7 +27,9 @@
 #define COMPILER "[MSC 32 bit (Intel)]"
 
 #define PYTHONPATH ".\\DLLs;.\\lib;.\\lib\\plat-win;.\\lib\\lib-tk"
+#if !defined(__MINGW32__)
 typedef int pid_t;
+#endif
 #define WORD_BIT 32
 #include <stdio.h>
 #define HAVE_CLOCK
