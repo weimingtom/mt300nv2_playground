@@ -11,7 +11,7 @@ My GL-MT300N-V2 playground
 
 ## python-2.2.2  
 * https://github.com/weimingtom/cecilia  
-* TODO: build failed on MSYS2 MINGW64  
+* (done) TODO: build failed on MSYS2 MINGW64  
 
 ## lua-5.1.4  
 * https://lua.org/ftp/  
