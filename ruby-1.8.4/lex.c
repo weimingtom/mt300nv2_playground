@@ -10,10 +10,10 @@ struct kwtable {char *name; int id[2]; enum lex_state state;};
 /* maximum key range = 50, duplicates = 0 */
 
 #ifdef __GNUC__
-__inline
+//__inline
 #else
 #ifdef __cplusplus
-inline
+//inline
 #endif
 #endif
 static unsigned int
@@ -66,7 +66,7 @@ hash (str, len)
 }
 
 #ifdef __GNUC__
-__inline
+//__inline
 #endif
 struct kwtable *
 rb_reserved_word (str, len)

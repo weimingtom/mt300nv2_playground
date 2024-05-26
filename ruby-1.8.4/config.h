@@ -213,6 +213,7 @@
 
 #define HAVE_STRTOUL 1
 //#define HAVE_CRYPT 1
+#define HAVE_CRYPT 1
 
 #ifndef _MSC_VER
 #ifndef __MINGW32__
@@ -294,7 +295,7 @@
 #define HAVE_SETGROUPS 1
 #define HAVE_GETPRIORITY 1
 #define HAVE_GETRLIMIT 1
-#define HAVE_DLOPEN 1
+//#define HAVE_DLOPEN 1
 #define HAVE_SIGPROCMASK 1
 #define HAVE_SIGACTION 1
 #endif

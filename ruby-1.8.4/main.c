@@ -59,7 +59,7 @@ main(argc, argv, envp)
 #endif
 #endif
 
-#if 0
+#if 1
 #ifdef _WIN32
     NtInitialize(&argc, &argv);
 #endif
