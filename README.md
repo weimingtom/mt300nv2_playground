@@ -16,6 +16,12 @@ My GL-MT300N-V2 playground
 ## lua-5.1.4  
 * https://lua.org/ftp/  
 
+## ruby-1.8.4  
+* https://github.com/weimingtom/eriri/tree/master/rubyjni/jni/ruby-1.8.4  
+* https://www.ruby-lang.org/zh_cn/downloads/releases/  
+* https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.4.tar.gz  
+* TODO: build failed on MSYS2 MINGW64  
+
 ## TODO  
 * ascii-invaders  
 * https://github.com/buildroot/buildroot/tree/master/package/ascii-invaders  
