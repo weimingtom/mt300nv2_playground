@@ -33,4 +33,6 @@ My GL-MT300N-V2 playground
 ## TODO  
 * ascii-invaders  
 * https://github.com/buildroot/buildroot/tree/master/package/ascii-invaders  
-* https://github.com/macdice/ascii-invaders  
+* https://github.com/macdice/ascii-invaders
+* https://sources.buildroot.net/ncurses/, ncurses-6.4-20230603.tar.gz  
+* ncurses-6.5.tar.gz, https://invisible-island.net/ncurses/, https://blog.csdn.net/qq_26962739/article/details/138335425, https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz  
