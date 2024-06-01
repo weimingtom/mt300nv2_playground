@@ -1,5 +1,5 @@
 # PLAT := arm-linux-androideabi-
-#PLAT := STAGING_DIR=/home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl /home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl/bin/mipsel-openwrt-linux-
+PLAT := STAGING_DIR=/home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl /home/wmt/work_mt300nv2/openwrt-toolchain-23.05.3-ramips-mt76x8_gcc-12.3.0_musl.Linux-x86_64/toolchain-mipsel_24kc_gcc-12.3.0_musl/bin/mipsel-openwrt-linux-
 
 # ncurses-6.4-20230603.tar.gz
 
@@ -200,6 +200,7 @@ clean :
 
 scp:
 	scp ./$(TARGET) root@192.168.8.1:/dev/shm/
+	scp ./xterm-256color root@192.168.8.1:/dev/shm/
 
 #scp ./$(TARGET) root@192.168.8.1:/tmp
 
@@ -207,6 +208,13 @@ ssh:
 	ssh root@192.168.8.1
 
 #
+#mkdir x
+#cp xterm-256color ./x/
 #TERM=xterm-256color TERMINFO=. ./ascii_invaders
+#(press space start, press q exit)
+#
+#
 #TERMINFO=/usr/share/terminfo
 #
+
+

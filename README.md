@@ -30,9 +30,23 @@ My GL-MT300N-V2 playground
 * https://cache.ruby-lang.org/pub/ruby/1.8/ruby-1.8.4.tar.gz  
 * TODO: build failed on MSYS2 MINGW64  
 
-## TODO  
-* ascii-invaders  
+## ascii-invaders  
 * https://github.com/buildroot/buildroot/tree/master/package/ascii-invaders  
-* https://github.com/macdice/ascii-invaders
-* https://sources.buildroot.net/ncurses/, ncurses-6.4-20230603.tar.gz  
-* ncurses-6.5.tar.gz, https://invisible-island.net/ncurses/, https://blog.csdn.net/qq_26962739/article/details/138335425, https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz  
+* https://github.com/macdice/ascii-invaders  
+* https://sources.buildroot.net/ncurses/  
+* (use this) ncurses-6.4-20230603.tar.gz  
+* (not used) ncurses-6.5.tar.gz  
+* https://invisible-island.net/ncurses/  
+* https://blog.csdn.net/qq_26962739/article/details/138335425  
+* (not used) https://ftp.gnu.org/gnu/ncurses/ncurses-6.5.tar.gz  
+* usage:  
+```
+# cd /dev/shm  
+# mkdir x  
+# cp xterm-256color ./x/  
+# TERM=xterm-256color TERMINFO=. ./ascii_invaders  
+(Press space to start, press q to exit)  
+```
+
+## TODO  
+* (done)    
